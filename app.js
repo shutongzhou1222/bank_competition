@@ -447,6 +447,18 @@ function generatePersonalizedData() {
         // 同步预算实际值
         expenseData.monthlyBudget.actual = expenseData.total;
         expenseData.monthlyBudget.overBudget = Math.max(0, expenseData.total - expenseData.monthlyBudget.recommended);
+
+        // 同步当月历史记录
+        const nowGen = new Date();
+        if (!expenseData.monthlyHistory) expenseData.monthlyHistory = [];
+        const genHistIdx = expenseData.monthlyHistory.findIndex(
+            h => h.year === nowGen.getFullYear() && h.month === nowGen.getMonth()
+        );
+        if (genHistIdx !== -1) {
+            expenseData.monthlyHistory[genHistIdx].total = expenseData.total;
+        } else {
+            expenseData.monthlyHistory.push({ year: nowGen.getFullYear(), month: nowGen.getMonth(), total: expenseData.total });
+        }
         
         // 保存所有数据
         saveData('familyData', familyData);
@@ -1644,7 +1656,63 @@ function renderStressTest() {
 // ========== 支出分析页面 ==========
 function renderExpensePage() {
     const expenseData = getData('expenseData');
-    
+    const total = expenseData.total || 0;
+    const cats = expenseData.categories || [];
+    const rigidCat = cats.find(c => c.name === '刚性成长支出') || { amount: 0, percentage: 0 };
+    const qualityCat = cats.find(c => c.name === '品质生活支出') || { amount: 0, percentage: 0 };
+    const anxietyCat = cats.find(c => c.name === '焦虑驱动支出') || { amount: 0, percentage: 0 };
+
+    // 总支出
+    const totalEl = document.getElementById('total-expense-display');
+    if (totalEl) totalEl.textContent = formatNumber(total);
+
+    // 概览图下方明细
+    const eduDetail = document.getElementById('expense-education-detail');
+    if (eduDetail) eduDetail.textContent = `¥${formatNumber(rigidCat.amount)} (${rigidCat.percentage}%)`;
+    const anxDetail = document.getElementById('expense-anxiety-detail');
+    if (anxDetail) anxDetail.textContent = `¥${formatNumber(anxietyCat.amount)} (${anxietyCat.percentage}%)`;
+
+    // 饼图图例百分比
+    const rigidPct = document.getElementById('pie-rigid-pct');
+    if (rigidPct) rigidPct.textContent = `${rigidCat.percentage}%`;
+    const qualityPct = document.getElementById('pie-quality-pct');
+    if (qualityPct) qualityPct.textContent = `${qualityCat.percentage}%`;
+    const anxietyPct = document.getElementById('pie-anxiety-pct');
+    if (anxietyPct) anxietyPct.textContent = `${anxietyCat.percentage}%`;
+
+    // 焦虑花费提示
+    const anxietyCostEl = document.getElementById('anxiety-cost-display');
+    if (anxietyCostEl) anxietyCostEl.textContent = `本月为焦虑多花了 ¥${formatNumber(anxietyCat.amount)}`;
+
+    // 焦虑比例（饼图中心）
+    const anxietyRatioEl = document.getElementById('anxiety-expense-ratio');
+    if (anxietyRatioEl) anxietyRatioEl.textContent = `${anxietyCat.percentage}%`;
+
+    // 预警文字
+    const alertEl = document.getElementById('expense-alert-text');
+    if (alertEl) {
+        const avgAnxietyPct = 20;
+        const diff = anxietyCat.percentage - avgAnxietyPct;
+        const optimizeCount = (expenseData.alternatives || []).length;
+        alertEl.textContent = `本月您的焦虑驱动支出占比 ${anxietyCat.percentage}%，比平均水平${diff >= 0 ? '高' : '低'} ${Math.abs(diff)}%，我们帮你找到了 ${optimizeCount} 个可以优化的地方`;
+    }
+
+    // 概览环比变化
+    const history = expenseData.monthlyHistory || [];
+    const now = new Date();
+    let prevYear = now.getFullYear(), prevMonth = now.getMonth() - 1;
+    if (prevMonth < 0) { prevMonth = 11; prevYear--; }
+    const prevRecord = history.find(h => h.year === prevYear && h.month === prevMonth);
+    const overviewChangeEl = document.getElementById('expense-overview-change');
+    if (overviewChangeEl && prevRecord && prevRecord.total > 0) {
+        const change = Math.round(((total - prevRecord.total) / prevRecord.total) * 100);
+        overviewChangeEl.textContent = change >= 0 ? `较上月 ↑${change}%` : `较上月 ↓${Math.abs(change)}%`;
+        overviewChangeEl.className = `text-xs mt-1 ${change >= 0 ? 'text-red-500' : 'text-green-500'}`;
+    } else if (overviewChangeEl) {
+        overviewChangeEl.textContent = '暂无上月数据';
+        overviewChangeEl.className = 'text-xs mt-1 text-gray-400';
+    }
+
     renderExpenseOverviewChart();
     renderExpensePieChart();
     renderAnxietyGauge();

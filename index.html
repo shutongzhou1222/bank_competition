@@ -758,7 +758,7 @@
                     <i class="fas fa-exclamation-triangle text-2xl"></i>
                     <div>
                         <strong>本月预警</strong>
-                        <p class="text-sm">本月您的焦虑驱动支出占比 28%，比平均水平高 8%，我们帮你找到了 3 个可以优化的地方</p>
+                        <p class="text-sm" id="expense-alert-text">本月您的焦虑驱动支出占比 28%，比平均水平高 8%，我们帮你找到了 3 个可以优化的地方</p>
                     </div>
                 </div>
 
@@ -772,8 +772,8 @@
                             <p class="text-2xl font-bold text-gray-800">¥<span id="total-expense-display">15,000</span></p>
                             <p class="text-xs text-red-500 mt-1" id="expense-overview-change">较上月 ↑5%</p>
                             <div class="mt-3 space-y-1 text-xs">
-                                <p><span class="text-gray-500">教育支出：</span><span class="font-medium">¥5,250 (35%)</span></p>
-                                <p><span class="text-gray-500">焦虑支出：</span><span class="font-medium text-red-500">¥4,200 (28%)</span></p>
+                                <p><span class="text-gray-500">教育支出：</span><span class="font-medium" id="expense-education-detail">¥5,250 (35%)</span></p>
+                                <p><span class="text-gray-500">焦虑支出：</span><span class="font-medium text-red-500" id="expense-anxiety-detail">¥4,200 (28%)</span></p>
                             </div>
                         </div>
                     </div>
@@ -788,18 +788,18 @@
                         <div class="mt-3 space-y-2">
                             <div class="flex justify-between text-xs">
                                 <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-green-500 mr-1"></span>刚性</span>
-                                <span class="text-gray-600">45%</span>
+                                <span class="text-gray-600" id="pie-rigid-pct">45%</span>
                             </div>
                             <div class="flex justify-between text-xs">
                                 <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-amber-800 mr-1"></span>品质</span>
-                                <span class="text-gray-600">27%</span>
+                                <span class="text-gray-600" id="pie-quality-pct">27%</span>
                             </div>
                             <div class="flex justify-between text-xs">
                                 <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-red-500 mr-1"></span>焦虑</span>
-                                <span class="text-gray-600">28%</span>
+                                <span class="text-gray-600" id="pie-anxiety-pct">28%</span>
                             </div>
                         </div>
-                        <p class="text-xs text-red-500 mt-2 text-center font-bold">本月为焦虑多花了 ¥4,200</p>
+                        <p class="text-xs text-red-500 mt-2 text-center font-bold" id="anxiety-cost-display">本月为焦虑多花了 ¥4,200</p>
                     </div>
                     <div class="card">
                         <div class="card-title">焦虑指数</div>
