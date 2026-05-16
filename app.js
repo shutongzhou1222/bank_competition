@@ -1065,40 +1065,70 @@ function switchMonth(direction) {
 function renderMonthlySummary() {
     const expenseData = getData('expenseData');
     const educationData = getData('educationData');
-    
-    const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-    document.getElementById('summary-date').textContent = `${currentViewYear}年${monthNames[currentViewMonth]}`;
-    
     const familyDataForSummary = getData('familyData');
     const monthlyIncomeSummary = (familyDataForSummary && familyDataForSummary.monthlyIncome) ? familyDataForSummary.monthlyIncome : 25000;
-    const monthlyExpense = expenseData.total || 0;
+
+    const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    document.getElementById('summary-date').textContent = `${currentViewYear}年${monthNames[currentViewMonth]}`;
+
+    const now = new Date();
+    const isCurrentMonth = currentViewYear === now.getFullYear() && currentViewMonth === now.getMonth();
+    const history = expenseData.monthlyHistory || [];
+
+    // 查当前查看月的记录
+    const viewedRecord = isCurrentMonth
+        ? { total: expenseData.total || 0 }
+        : history.find(h => h.year === currentViewYear && h.month === currentViewMonth);
+
+    if (!viewedRecord) {
+        document.getElementById('summary-expense').textContent = '--';
+        document.getElementById('summary-savings').textContent = '--';
+        document.getElementById('expense-change').innerHTML = '<span class="text-gray-400">暂无数据</span>';
+        document.getElementById('savings-change').innerHTML = '';
+        document.getElementById('summary-highlights').innerHTML = '<li>该月暂无记录</li>';
+        document.getElementById('summary-suggestions').innerHTML = '<div>• 切换到有数据的月份查看复盘</div>';
+        return;
+    }
+
+    const monthlyExpense = viewedRecord.total;
     const monthlySavings = Math.max(0, monthlyIncomeSummary - monthlyExpense);
-    // 上月用固定基准（当月的95%），避免随机跳动
-    const prevMonthExpense = Math.round(monthlyExpense * 0.95);
+
+    // 查上一个月的记录
+    let prevYear = currentViewYear, prevMonth = currentViewMonth - 1;
+    if (prevMonth < 0) { prevMonth = 11; prevYear--; }
+    const isPrevCurrentMonth = prevYear === now.getFullYear() && prevMonth === now.getMonth();
+    const prevRecord = isPrevCurrentMonth
+        ? { total: expenseData.total || 0 }
+        : history.find(h => h.year === prevYear && h.month === prevMonth);
+    const prevMonthExpense = prevRecord ? prevRecord.total : monthlyExpense;
     const prevMonthSavings = Math.max(0, monthlyIncomeSummary - prevMonthExpense);
-    
+
     // 计算环比变化
-    const expenseChange = Math.round(((monthlyExpense - prevMonthExpense) / prevMonthExpense) * 100);
-    const savingsChange = Math.round(((monthlySavings - prevMonthSavings) / prevMonthSavings) * 100);
-    
+    const expenseChange = prevMonthExpense > 0 ? Math.round(((monthlyExpense - prevMonthExpense) / prevMonthExpense) * 100) : 0;
+    const savingsChange = prevMonthSavings > 0 ? Math.round(((monthlySavings - prevMonthSavings) / prevMonthSavings) * 100) : 0;
+
     document.getElementById('summary-expense').textContent = formatNumber(monthlyExpense);
     document.getElementById('summary-savings').textContent = formatNumber(monthlySavings);
-    
+
     // 更新变化显示
     const expenseChangeEl = document.getElementById('expense-change');
-    if (expenseChange >= 0) {
+    if (!prevRecord) {
+        expenseChangeEl.innerHTML = '<span class="text-gray-400">无上月数据</span>';
+    } else if (expenseChange >= 0) {
         expenseChangeEl.innerHTML = `<span class="text-red-500">↑ ${expenseChange}%</span><span class="text-gray-400"> 较上月</span>`;
     } else {
         expenseChangeEl.innerHTML = `<span class="text-green-500">↓ ${Math.abs(expenseChange)}%</span><span class="text-gray-400"> 较上月</span>`;
     }
-    
+
     const savingsChangeEl = document.getElementById('savings-change');
-    if (savingsChange >= 0) {
+    if (!prevRecord) {
+        savingsChangeEl.innerHTML = '';
+    } else if (savingsChange >= 0) {
         savingsChangeEl.innerHTML = `<span class="text-green-500">↑ ${savingsChange}%</span><span class="text-gray-400"> 较上月</span>`;
     } else {
         savingsChangeEl.innerHTML = `<span class="text-red-500">↓ ${Math.abs(savingsChange)}%</span><span class="text-gray-400"> 较上月</span>`;
     }
-    
+
     // 生成当月亮点
     const highlights = [];
     if (savingsChange > 0) {
@@ -1119,9 +1149,9 @@ function renderMonthlySummary() {
     if (highlights.length === 0) {
         highlights.push('财务状况总体稳定，继续保持良好的消费习惯');
     }
-    
+
     document.getElementById('summary-highlights').innerHTML = highlights.map(h => `<li>${h}</li>`).join('');
-    
+
     // 生成优化建议
     const suggestions = [];
     if (expenseChange > 10) {
@@ -1137,7 +1167,7 @@ function renderMonthlySummary() {
     if (suggestions.length === 0) {
         suggestions.push('各项指标表现良好，维持现有理财习惯即可');
     }
-    
+
     document.getElementById('summary-suggestions').innerHTML = suggestions.map(s => `<div>• ${s}</div>`).join('');
 }
 
@@ -1809,6 +1839,18 @@ function addExpense() {
     // 同步预算实际值
     expenseData.monthlyBudget.actual = expenseData.total;
     expenseData.monthlyBudget.overBudget = Math.max(0, expenseData.total - expenseData.monthlyBudget.recommended);
+
+    // 同步当月历史记录
+    const nowForHistory = new Date();
+    if (!expenseData.monthlyHistory) expenseData.monthlyHistory = [];
+    const histIdx = expenseData.monthlyHistory.findIndex(
+        h => h.year === nowForHistory.getFullYear() && h.month === nowForHistory.getMonth()
+    );
+    if (histIdx !== -1) {
+        expenseData.monthlyHistory[histIdx].total = expenseData.total;
+    } else {
+        expenseData.monthlyHistory.push({ year: nowForHistory.getFullYear(), month: nowForHistory.getMonth(), total: expenseData.total });
+    }
     
     saveData('expenseData', expenseData);
     

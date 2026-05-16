@@ -151,7 +151,16 @@ const expenseData = {
         weekly: 3750,
         daily: 535,
         trend: "up"
-    }
+    },
+    monthlyHistory: [
+        { year: 2025, month: 10, total: 12800 },
+        { year: 2025, month: 11, total: 16200 },
+        { year: 2026, month: 0,  total: 13500 },
+        { year: 2026, month: 1,  total: 11800 },
+        { year: 2026, month: 2,  total: 14200 },
+        { year: 2026, month: 3,  total: 15800 },
+        { year: 2026, month: 4,  total: 15000 }
+    ]
 };
 
 // ========== 4. 保险数据 ==========
@@ -523,6 +532,13 @@ function initLocalStorage() {
     }
     if (!localStorage.getItem('expenseData')) {
         localStorage.setItem('expenseData', JSON.stringify(expenseData));
+    } else {
+        // 迁移：补充 monthlyHistory 字段（旧数据没有此字段）
+        const stored = JSON.parse(localStorage.getItem('expenseData'));
+        if (!stored.monthlyHistory || stored.monthlyHistory.length === 0) {
+            stored.monthlyHistory = expenseData.monthlyHistory;
+            localStorage.setItem('expenseData', JSON.stringify(stored));
+        }
     }
     if (!localStorage.getItem('insuranceData')) {
         localStorage.setItem('insuranceData', JSON.stringify(insuranceData));
