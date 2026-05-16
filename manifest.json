@@ -1,0 +1,26 @@
+{
+  "name": "年轮守护 - 家庭财务导航",
+  "short_name": "年轮守护",
+  "description": "反焦虑、重陪伴的亲子家庭AI财务规划工具",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#E60012",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "lifestyle"],
+  "lang": "zh-CN"
+}

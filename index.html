@@ -1,0 +1,1476 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>年轮守护 - 招商银行金小葵管家AI升级</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#E60012">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="年轮守护">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 引导页面 -->
+    <div id="onboarding-page" class="onboarding-container" style="display: none;">
+        <!-- 欢迎区 -->
+        <div class="onboarding-header">
+            <div class="onboarding-icon">🌳</div>
+            <h1 class="onboarding-title">欢迎来到年轮守护</h1>
+            <p class="onboarding-desc">
+                为人父母总是想给孩子最好的，但又常常在各种选择中感到迷茫。<br>
+                只需要花 1 分钟回答几个简单问题，就能为你量身打造专属的家庭成长与财务导航图。
+            </p>
+        </div>
+
+        <!-- 进度条 -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="onboarding-progress" style="width: 0%"></div>
+            </div>
+            <span class="progress-text" id="progress-text">第 1 / 5 步</span>
+        </div>
+
+        <!-- 问题区域 -->
+        <div class="questions-container">
+            <!-- 问题1：有几个孩子 -->
+            <div class="question-card active" id="q1">
+                <div class="question-icon">👨‍👩‍👧</div>
+                <h3 class="question-title">你家有几个孩子？</h3>
+                <p class="question-desc">这是我们为你规划的起点，不同的家庭结构会有不同的财务重点。</p>
+                <div class="options-grid">
+                    <button class="option-btn" data-value="1">1 个宝宝</button>
+                    <button class="option-btn" data-value="2">2 个宝宝</button>
+                    <button class="option-btn" data-value="3">3 个及以上</button>
+                    <button class="option-btn" data-value="preparing">正在备孕中</button>
+                </div>
+            </div>
+
+            <!-- 问题2：宝宝多大 -->
+            <div class="question-card" id="q2">
+                <div class="question-icon">🎂</div>
+                <h3 class="question-title">宝宝现在多大了？</h3>
+                <p class="question-desc">不同年龄段的成长需求和财务规划重点完全不同，我们会精准匹配对应的里程碑。</p>
+                <div class="options-grid">
+                    <button class="option-btn" data-value="baby">0-3 岁（婴幼儿期）</button>
+                    <button class="option-btn" data-value="preschool">3-6 岁（幼儿园阶段）</button>
+                    <button class="option-btn" data-value="lower">6-9 岁（小学低年级）</button>
+                    <button class="option-btn" data-value="upper">9-12 岁（小学高年级）</button>
+                    <button class="option-btn" data-value="teen">12 岁以上</button>
+                </div>
+                <!-- 子问题：第二个宝宝多大 -->
+                <div class="sub-question" id="q2-sub" style="display: none;">
+                    <h4 class="sub-question-title">第二个宝宝多大了？</h4>
+                    <div class="options-grid">
+                        <button class="option-btn" data-value="baby">0-3 岁</button>
+                        <button class="option-btn" data-value="preschool">3-6 岁</button>
+                        <button class="option-btn" data-value="lower">6-9 岁</button>
+                        <button class="option-btn" data-value="upper">9-12 岁</button>
+                        <button class="option-btn" data-value="teen">12 岁以上</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 问题3：教育期待 -->
+            <div class="question-card" id="q3">
+                <div class="question-icon">🎓</div>
+                <h3 class="question-title">你对孩子的教育期待是？</h3>
+                <p class="question-desc">没有最好的教育，只有最适合的教育。我们不会评判任何选择，只是帮你算出对应的教育金需求。</p>
+                <div class="options-list">
+                    <button class="option-btn-list" data-value="public">
+                        <span class="option-icon">🎒</span>
+                        <span class="option-text">稳妥公立路线：国内公立小学→初中→高中→大学</span>
+                    </button>
+                    <button class="option-btn-list" data-value="international">
+                        <span class="option-icon">🌍</span>
+                        <span class="option-text">国际双语路线：国际学校→海外本科</span>
+                    </button>
+                    <button class="option-btn-list" data-value="overseas">
+                        <span class="option-icon">✈️</span>
+                        <span class="option-text">海外留学路线：国内基础教育→海外高中 / 本科</span>
+                    </button>
+                    <button class="option-btn-list" data-value="undecided">
+                        <span class="option-icon">🤔</span>
+                        <span class="option-text">还没想好，先看看不同方案的差异</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 问题4：家庭月收入 -->
+            <div class="question-card" id="q4">
+                <div class="question-icon">💰</div>
+                <h3 class="question-title">家庭月收入大约在哪个区间？</h3>
+                <div class="privacy-notice">
+                    🔒 所有数据都只保存在你的设备上，我们不会收集或上传任何个人财务信息。<br>
+                    选择一个大致区间即可，这能帮助我们给出更符合实际的储蓄建议。
+                </div>
+                <div class="options-grid">
+                    <button class="option-btn" data-value="1">1 万元以下</button>
+                    <button class="option-btn" data-value="2">1-2 万元</button>
+                    <button class="option-btn" data-value="3">2-3 万元</button>
+                    <button class="option-btn" data-value="4">3-5 万元</button>
+                    <button class="option-btn" data-value="5">5 万元以上</button>
+                </div>
+            </div>
+
+            <!-- 问题5：风险承受能力 -->
+            <div class="question-card" id="q5">
+                <div class="question-icon">⚖️</div>
+                <h3 class="question-title">你的风险承受能力是？</h3>
+                <p class="question-desc">每个人对风险的接受程度不同，没有对错之分。了解你的偏好，我们才能帮你设计出睡得着觉的财务方案。</p>
+                <div class="options-list">
+                    <button class="option-btn-list" data-value="conservative">
+                        <span class="option-icon">🛡️</span>
+                        <span class="option-text">完全不能接受亏损，只想要保本的产品</span>
+                    </button>
+                    <button class="option-btn-list" data-value="moderate">
+                        <span class="option-icon">⚖️</span>
+                        <span class="option-text">可以接受少量亏损，追求稳健的收益</span>
+                    </button>
+                    <button class="option-btn-list" data-value="aggressive">
+                        <span class="option-icon">📈</span>
+                        <span class="option-text">愿意承担一定风险，追求更高的长期收益</span>
+                    </button>
+                    <button class="option-btn-list" data-value="unknown">
+                        <span class="option-icon">🤔</span>
+                        <span class="option-text">不太清楚</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部操作区 -->
+        <div class="onboarding-footer">
+            <button class="skip-btn" onclick="skipOnboarding()">暂时不想填写，直接进入首页 →</button>
+            <button class="submit-btn" id="submit-btn" style="display: none;" onclick="generateNavMap()">生成我的专属导航图 🎉</button>
+        </div>
+    </div>
+
+    <!-- 加载动画 -->
+    <div id="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner-large"></div>
+            <p>正在为你构建专属财务框架...</p>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🌳</div>
+                <div class="logo-text">
+                    <h1>年轮守护</h1>
+                    <p>GrowthRing AI</p>
+                </div>
+            </div>
+            <div class="user-menu-container">
+                <button class="user-avatar-btn" id="user-menu-btn">
+                    <i class="fas fa-user"></i>
+                </button>
+                <div class="user-menu-dropdown" id="user-menu-dropdown" style="display: none;">
+                    <button class="menu-item" onclick="openProfileModal()">
+                        <i class="fas fa-user-edit"></i>
+                        <span>编辑资料</span>
+                    </button>
+                    <button class="menu-item logout-btn" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>退出登录</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" id="main-content">
+        
+        <!-- 用户信息编辑弹窗 -->
+        <div class="modal-overlay" id="profile-modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="text-lg font-bold">编辑家庭信息</h3>
+                    <button class="modal-close" onclick="closeProfileModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>孩子姓名</label>
+                        <input type="text" id="edit-child-name" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>孩子年龄（岁）</label>
+                        <input type="number" id="edit-child-age" min="0" max="18" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>家庭月收入（元）</label>
+                        <input type="number" id="edit-family-income" min="0" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>所在城市</label>
+                        <select id="edit-city" class="form-input">
+                            <option value="一线">一线城市</option>
+                            <option value="新一线">新一线城市</option>
+                            <option value="二线">二线城市</option>
+                            <option value="三线">三线及以下城市</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" onclick="closeProfileModal()">取消</button>
+                    <button class="btn btn-primary" onclick="saveProfile()">保存</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page active" id="page-home">
+            <section>
+                <div class="card mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center text-3xl">
+                                👧
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold" id="child-name">小葵</h2>
+                                <p class="text-gray-500"><span id="child-age">3</span>岁 · <span id="growth-stage">育婴新手期</span></p>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline btn-sm" onclick="openProfileModal()">
+                            <i class="fas fa-edit mr-1"></i>编辑
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="card">
+                        <div class="text-gray-500 text-sm mb-2">教育金进度</div>
+                        <div class="text-3xl font-bold text-gray-800 mb-2"><span id="edu-progress">38</span>%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-green" id="edu-progress-bar" style="width: 38%"></div>
+                        </div>
+                        <div class="text-sm text-gray-500 mt-2">已存 <span id="edu-saved">100,000</span> 元</div>
+                        <div class="mt-3 pt-3 border-t border-gray-100">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>教育目标：<span id="edu-goal">200万</span></span>
+                                <span>教育路径：<span id="edu-path">公立路线</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card" id="protection-score-card" onclick="toggleProtectionDetail()" style="cursor:pointer;">
+                        <div class="text-gray-500 text-sm mb-2">家庭保障评分 <span class="text-xs text-blue-400">（点击查看详情）</span></div>
+                        <div class="flex items-end gap-2 mb-1">
+                            <div class="text-3xl font-bold text-blue-500" id="protection-score">65</div>
+                            <div class="text-sm text-gray-400 mb-1">/ 100</div>
+                        </div>
+                        <div class="text-sm mb-2" id="protection-score-label">建议优化提升 💪</div>
+                        <div id="protection-score-detail" style="display:none;">
+                            <div class="border-t border-gray-100 pt-3 mt-1 space-y-2" id="protection-score-breakdown"></div>
+                            <div class="mt-3 text-xs text-gray-400">评分基于当前保单数据自动计算，点击「保障分析」查看优化建议</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-6" id="stage-card">
+                    <div class="card-title flex items-center gap-2">
+                        <i class="fas fa-baby text-pink-500"></i>
+                        当前成长阶段
+                    </div>
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-14 h-14 rounded-full bg-pink-100 flex items-center justify-center" id="stage-icon-bg">
+                            <i class="fas" id="stage-icon" style="color: #FFB6C1; font-size: 2rem;"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg" id="stage-name">育婴新手期</h3>
+                            <p class="text-gray-500 text-sm" id="stage-age">0-3岁</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-500 mb-2">阶段特征</p>
+                        <p class="text-gray-700 text-sm leading-relaxed" id="stage-description"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-2">温馨提示</p>
+                        <ul id="stage-tips" class="space-y-2"></ul>
+                    </div>
+                </div>
+
+                <h3 class="text-lg font-semibold mb-4">快捷入口</h3>
+                <div class="quick-entry mb-6" id="quick-entry-container">
+                    <div class="quick-entry-card" onclick="navigateTo('education')">
+                        <div class="quick-entry-icon" style="background: linear-gradient(135deg, #E60012, #FF5252); color: white;">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3>教育金导航</h3>
+                        <p>动态规划</p>
+                    </div>
+                    <div class="quick-entry-card" onclick="navigateTo('expense')">
+                        <div class="quick-entry-icon" style="background: linear-gradient(135deg, #8B5A2B, #A1887F); color: white;">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h3>焦虑指数</h3>
+                        <p>支出分析</p>
+                    </div>
+                    <div class="quick-entry-card" onclick="navigateTo('insurance')">
+                        <div class="quick-entry-icon" style="background: linear-gradient(135deg, #4CAF50, #81C784); color: white;">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>保险测评</h3>
+                        <p>客观解析</p>
+                    </div>
+                    <div class="quick-entry-card" onclick="navigateTo('game')">
+                        <div class="quick-entry-icon" style="background: linear-gradient(135deg, #FFC107, #FFD54F); color: white;">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <h3>亲子大富翁</h3>
+                        <p>财商教育</p>
+                    </div>
+                    <div class="quick-entry-card" onclick="navigateTo('chat')">
+                        <div class="quick-entry-icon" style="background: linear-gradient(135deg, #7C3AED, #A78BFA); color: white;">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3>AI顾问</h3>
+                        <p>智能问答</p>
+                    </div>
+                </div>
+
+                <div class="card mb-6">
+                    <div class="card-title flex justify-between items-center">
+                        <span><i class="fas fa-calendar-check text-blue-500"></i> 本月财务复盘</span>
+                        <div class="flex items-center gap-2">
+                            <button class="month-switch-btn" id="prev-month-btn" onclick="switchMonth(-1)">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <span class="font-bold text-gray-800 min-w-[100px] text-center" id="summary-date">2026年5月</span>
+                            <button class="month-switch-btn" id="next-month-btn" onclick="switchMonth(1)">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <p class="text-gray-500 text-xs mb-1">本月支出</p>
+                            <p class="font-bold text-xl text-gray-800">¥<span id="summary-expense">15,000</span></p>
+                            <p class="text-xs mt-1" id="expense-change">
+                                <span class="text-red-500">↑ 5%</span>
+                                <span class="text-gray-400">较上月</span>
+                            </p>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <p class="text-gray-500 text-xs mb-1">教育金储蓄</p>
+                            <p class="font-bold text-xl text-green-600">¥<span id="summary-savings">5,000</span></p>
+                            <p class="text-xs mt-1" id="savings-change">
+                                <span class="text-green-500">↑ 10%</span>
+                                <span class="text-gray-400">较上月</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mb-4 p-3 bg-green-50 rounded-lg">
+                        <p class="text-sm font-medium text-green-700 mb-2">✨ 本月亮点</p>
+                        <ul id="summary-highlights" class="text-sm text-green-600 space-y-1"></ul>
+                    </div>
+                    <div class="p-3 bg-blue-50 rounded-lg">
+                        <p class="text-sm font-medium text-blue-700 mb-2">💡 优化建议</p>
+                        <div id="summary-suggestions" class="text-sm text-blue-600 space-y-1"></div>
+                    </div>
+                </div>
+
+                <!-- 智能行动卡 -->
+                <div class="card mb-6" id="ai-action-card" style="border-left: 4px solid var(--cmb-red);">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background: var(--cmb-red);">AI</div>
+                        <span class="font-semibold text-gray-800">本月最重要的一件事</span>
+                    </div>
+                    <div id="ai-action-content">
+                        <p class="text-gray-700 text-sm leading-relaxed mb-3" id="ai-action-text"></p>
+                        <div class="flex items-center justify-between">
+                            <button class="btn btn-sm" style="background: var(--cmb-red); color: white; border: none;" id="ai-action-btn" onclick="">立即处理</button>
+                            <span class="text-xs text-gray-400" id="ai-action-meta"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-8">
+                    <div class="card-title">
+                        <i class="fas fa-lightbulb text-yellow-500"></i>
+                        温馨提醒
+                    </div>
+                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
+                        <p class="text-gray-700" id="warm-tip">🌟 小葵3岁了，这是语言和社交能力发展的黄金期。与其报昂贵的早教班，不如每天花30分钟和孩子一起读绘本、玩角色扮演游戏，效果可能更好哦！</p>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+
+        <div class="page" id="page-education">
+            <section>
+                <h2 class="text-2xl font-bold mb-6">教育金动态导航仪</h2>
+                
+                <div class="card mb-6">
+                    <div class="card-title">选择教育路径</div>
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" data-path="public">公立路线</button>
+                        <button class="tab-btn" data-path="international">国际路线</button>
+                        <button class="tab-btn" data-path="overseas">海外路线</button>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-3" id="path-description">稳妥省心，适合注重性价比的家庭</p>
+                </div>
+
+                <div class="card mb-6">
+                    <div class="card-title">储蓄进度</div>
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">已存教育金</span>
+                            <span class="font-bold"><span id="current-savings-display">100,000</span> 元</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">目标金额</span>
+                            <span class="font-bold" id="target-amount">260,000 元</span>
+                        </div>
+                        <div class="flex justify-between mb-4">
+                            <span class="text-gray-600">缺口</span>
+                            <span class="font-bold text-red-500" id="gap-amount">160,000 元</span>
+                        </div>
+                        <!-- 建议月储蓄 -->
+                        <div class="p-3 rounded-lg mb-4" style="background: #fff5f5; border: 1px solid #fecaca;" id="monthly-advice-box">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-medium" style="color: var(--cmb-red);">💡 建议每月储蓄</span>
+                                <span class="text-lg font-bold" style="color: var(--cmb-red);" id="monthly-needed-display">--</span>
+                            </div>
+                            <p class="text-xs text-gray-500" id="monthly-advice-detail">按当前缺口和剩余年限计算</p>
+                            <div class="mt-2 flex items-center gap-2">
+                                <div class="flex-1 bg-gray-200 rounded-full" style="height:4px;">
+                                    <div id="monthly-ratio-bar" style="height:4px;border-radius:9999px;background:var(--cmb-red);width:0%;"></div>
+                                </div>
+                                <span class="text-xs text-gray-500" id="monthly-income-ratio">占月收入 --%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar mb-2">
+                            <div class="progress-fill progress-green" id="education-progress-bar" style="width: 38%"></div>
+                        </div>
+                        <div class="text-center text-sm text-gray-500">完成度 <span id="education-progress-text">38</span>%</div>
+                    </div>
+                    <div class="calculation-toggle mb-4" onclick="toggleCalculationDetails()">
+                        <p class="text-sm text-blue-700 font-medium mb-2 cursor-pointer">💡 点击查看详细计算方式</p>
+                    </div>
+                    <div id="calculation-details" class="hidden">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h4 class="font-bold text-gray-800 mb-3">我们是怎么为你计算教育金的？</h4>
+                                <p class="text-sm text-gray-600 mb-4">我们采用国际通用的年金现值计算法，不是简单地把未来的学费加起来，而是综合考虑了时间价值、教育通胀和投资收益，算出你现在开始每月需要存多少钱，才能在孩子需要用钱的时候刚好够用。</p>
+                                <p class="text-sm font-medium text-gray-700 mb-2">核心公式（通俗版）：</p>
+                                <p class="text-sm text-gray-600">目标总金额 = 未来各阶段学费总和（考虑通胀） - 现有储蓄的未来收益</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h4 class="font-bold text-gray-800 mb-3">你的专属计算参数（基于你选择的公立路线）</h4>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm">
+                                        <thead>
+                                            <tr class="border-b">
+                                                <th class="text-left py-2 px-3">计算参数</th>
+                                                <th class="text-left py-2 px-3">具体数值</th>
+                                                <th class="text-left py-2 px-3">说明</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="border-b">
+                                                <td class="py-2 px-3">孩子当前年龄</td>
+                                                <td class="py-2 px-3" id="calc-child-age">3 岁</td>
+                                                <td class="py-2 px-3" id="calc-years-left">距离大学毕业还有 19 年</td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="py-2 px-3">覆盖教育阶段</td>
+                                                <td class="py-2 px-3">幼儿园至大学本科</td>
+                                                <td class="py-2 px-3">共 15 年教育周期</td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="py-2 px-3">教育通胀率</td>
+                                                <td class="py-2 px-3">3.5%/年</td>
+                                                <td class="py-2 px-3">参考近 10 年我国教育费用平均涨幅</td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="py-2 px-3">预期年化收益率</td>
+                                                <td class="py-2 px-3">
+                                                    <span id="calc-return-rate">3.0%</span>
+                                                    <a href="#" class="text-blue-500 text-xs ml-2" onclick="toggleReturnRateSlider(event)">修改</a>
+                                                </td>
+                                                <td class="py-2 px-3">对应招商银行 R2 级稳健型理财产品平均收益</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-2 px-3">已存教育金</td>
+                                                <td class="py-2 px-3" id="calc-savings">105,300 元</td>
+                                                <td class="py-2 px-3">你当前已经存入的教育金</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <!-- 收益率滑块 -->
+                                <div id="return-rate-slider" class="hidden mt-4 p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-sm text-gray-600">2%</span>
+                                        <input type="range" id="return-rate-input" min="2" max="5" step="0.1" value="3" class="flex-1">
+                                        <span class="text-sm text-gray-600">5%</span>
+                                    </div>
+                                    <p class="text-center text-sm mt-2" id="return-rate-display">当前收益率：3.0%</p>
+                                </div>
+                                
+                                <div class="mt-4 p-3 bg-green-50 rounded-lg">
+                                    <p class="text-sm font-medium text-green-700 mb-2">各阶段预计总费用（已考虑通胀）：</p>
+                                    <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs" id="stage-costs-grid">
+                                        <!-- 动态渲染 -->
+                                    </div>
+                                    <p class="text-sm text-green-700 mt-3">✅ 扣除现有储蓄的未来收益后，最终目标金额：<span id="calc-final-amount">--</span> 元</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h4 class="font-bold text-gray-800 mb-3">为什么说这是"动态导航仪"而不是静态计算器？</h4>
+                                <p class="text-sm text-gray-600 mb-3">这个数字不是一成不变的，系统会在以下情况自动为你重新计算：</p>
+                                <ul class="space-y-2 text-sm text-gray-600">
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                        <span>当你切换不同的教育路径（公立/国际/海外）</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                        <span>当你修改已存教育金金额</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                        <span>当你添加家庭财务变动事件（如迎来二胎、父母换工作）</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                        <span>每年1月1日，系统会根据最新的教育费用数据自动更新计算结果</span>
+                                    </li>
+                                </ul>
+                                <p class="text-sm text-gray-600 mt-3">就像车载导航一样，路线变了，我们会立即为你重新规划最优的储蓄路径。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h4 class="font-bold text-gray-800 mb-3">我们的数据来自哪里？</h4>
+                                <ul class="space-y-2 text-sm text-gray-600">
+                                    <li class="flex items-start">
+                                        <i class="fas fa-database text-blue-500 mr-2 mt-0.5"></i>
+                                        <span>教育费用数据：国家统计局《中国教育经费统计年鉴》+ 招商银行《2025中国亲子教育消费白皮书》</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-database text-blue-500 mr-2 mt-0.5"></i>
+                                        <span>通胀率数据：近10年全国居民教育文化娱乐消费价格指数平均涨幅</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-database text-blue-500 mr-2 mt-0.5"></i>
+                                        <span>收益率数据：招商银行稳健型理财产品近5年平均年化收益率</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <p class="text-center text-xs text-gray-400">💡 这只是一个参考目标，不是硬性要求。你可以根据自己的实际情况随时调整，我们会一直陪伴你找到最适合的平衡。</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <input type="number" id="savings-input" class="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg" placeholder="修改已存金额">
+                        <button class="btn btn-primary" onclick="updateSavings()">更新</button>
+                    </div>
+                </div>
+
+                <div class="card mb-6">
+                    <div class="card-title">成长里程碑与费用趋势</div>
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-500 mb-3">近6个月教育支出趋势</p>
+                        <div class="flex items-end justify-around h-28 mb-2" id="monthly-expense-trend">
+                            <div class="flex flex-col items-center">
+                                <div class="w-8 bg-green-500 rounded-t" style="height: 40px;"></div>
+                                <span class="text-xs text-gray-500 mt-1">11月</span>
+                                <span class="text-xs font-medium text-green-600">¥2,800</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-8 bg-green-500 rounded-t" style="height: 55px;"></div>
+                                <span class="text-xs text-gray-500 mt-1">12月</span>
+                                <span class="text-xs font-medium text-green-600">¥3,500</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-8 bg-yellow-500 rounded-t" style="height: 70px;"></div>
+                                <span class="text-xs text-gray-500 mt-1">1月</span>
+                                <span class="text-xs font-medium text-yellow-600">¥4,200</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-8 bg-yellow-500 rounded-t" style="height: 65px;"></div>
+                                <span class="text-xs text-gray-500 mt-1">2月</span>
+                                <span class="text-xs font-medium text-yellow-600">¥3,800</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-8 bg-red-500 rounded-t" style="height: 85px;"></div>
+                                <span class="text-xs text-gray-500 mt-1">3月</span>
+                                <span class="text-xs font-medium text-red-600">¥5,200</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-8 bg-red-500 rounded-t" style="height: 90px;"></div>
+                                <span class="text-xs text-gray-500 mt-1">4月</span>
+                                <span class="text-xs font-medium text-red-600">¥5,500</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-400">
+                            <span>月均支出：¥4,167</span>
+                            <span class="text-red-500">↑ 12% 较上月</span>
+                        </div>
+                    </div>
+                    <div class="timeline" id="timeline-container"></div>
+                </div>
+
+                <div class="card mb-6">
+                    <div class="card-title">
+                        <i class="fas fa-robot text-cmb-red"></i>
+                        不同选择，不同结果
+                    </div>
+                    <p class="text-sm text-gray-500 mb-4">点击下方问题，AI 为你测算不同教育规划对储蓄的影响</p>
+                    <div class="space-y-2 mb-4" id="edu-qa-questions">
+                        <button class="w-full text-left px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-700 transition-all edu-qa-btn" onclick="askEduQuestion('international-school')">
+                            如果从公立转国际学校，我每月需要多存多少？
+                        </button>
+                        <button class="w-full text-left px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-700 transition-all edu-qa-btn" onclick="askEduQuestion('study-abroad')">
+                            如果本科去美国留学，总费用会增加多少？
+                        </button>
+                        <button class="w-full text-left px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-700 transition-all edu-qa-btn" onclick="askEduQuestion('extracurricular')">
+                            每年增加 2 万特长培训，对我的储蓄计划影响大吗？
+                        </button>
+                        <button class="w-full text-left px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-700 transition-all edu-qa-btn" onclick="askEduQuestion('gap-year')">
+                            孩子计划 gap 一年再上大学，需要额外准备多少？
+                        </button>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-xs text-gray-400 mb-2">或者，直接问 AI 你的问题</p>
+                        <div class="flex gap-2">
+                            <input type="text" id="edu-free-input"
+                                class="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-cmb-red"
+                                placeholder="例如：孩子5岁，每月存3000元够吗？"
+                                maxlength="120"
+                                onkeydown="if(event.key==='Enter') askEduFreeQuestion()">
+                            <button class="px-4 py-2 bg-cmb-red text-white text-sm rounded-xl flex-shrink-0 font-medium" onclick="askEduFreeQuestion()">发送</button>
+                        </div>
+                        <div id="edu-free-answer" class="hidden mt-3">
+                            <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-cmb-red flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-robot text-white text-xs"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-xs text-gray-400 mb-1">AI 回答</p>
+                                        <div id="edu-free-answer-text" class="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="edu-qa-answer" class="hidden mt-4">
+                        <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                            <div class="flex items-start gap-3 mb-3">
+                                <div class="w-8 h-8 rounded-full bg-cmb-red flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-robot text-white text-xs"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs text-gray-400 mb-1">AI 测算结果</p>
+                                    <p class="text-sm font-medium text-gray-800" id="edu-qa-question-text"></p>
+                                </div>
+                            </div>
+                            <div class="space-y-3 ml-11">
+                                <div class="flex items-center gap-3 p-3 bg-white rounded-lg">
+                                    <i class="fas fa-piggy-bank text-cmb-red"></i>
+                                    <div>
+                                        <p class="text-xs text-gray-500">每月需额外储蓄</p>
+                                        <p class="text-base font-bold text-cmb-red" id="edu-qa-monthly"></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3 p-3 bg-white rounded-lg">
+                                    <i class="fas fa-chart-line text-orange-500"></i>
+                                    <div>
+                                        <p class="text-xs text-gray-500">教育总费用增加</p>
+                                        <p class="text-base font-bold text-orange-500" id="edu-qa-total"></p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-white rounded-lg">
+                                    <p class="text-xs text-gray-500 mb-2"><i class="fas fa-lightbulb text-yellow-500 mr-1"></i>储蓄建议</p>
+                                    <ul class="space-y-1" id="edu-qa-tips"></ul>
+                                </div>
+                            </div>
+                            <button class="mt-3 ml-11 text-xs text-blue-500" onclick="closeEduAnswer()">收起 ↑</button>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+
+        <div class="page" id="page-expense">
+            <section>
+                <h2 class="text-2xl font-bold mb-6">支出分析</h2>
+
+                <div class="alert-banner warning mb-6">
+                    <i class="fas fa-exclamation-triangle text-2xl"></i>
+                    <div>
+                        <strong>本月预警</strong>
+                        <p class="text-sm">本月您的焦虑驱动支出占比 28%，比平均水平高 8%，我们帮你找到了 3 个可以优化的地方</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="card">
+                        <div class="card-title">本月支出总览</div>
+                        <div style="height: 180px; position: relative;">
+                            <canvas id="expense-overview-chart"></canvas>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <p class="text-2xl font-bold text-gray-800">¥<span id="total-expense-display">15,000</span></p>
+                            <p class="text-xs text-red-500 mt-1" id="expense-overview-change">较上月 ↑5%</p>
+                            <div class="mt-3 space-y-1 text-xs">
+                                <p><span class="text-gray-500">教育支出：</span><span class="font-medium">¥5,250 (35%)</span></p>
+                                <p><span class="text-gray-500">焦虑支出：</span><span class="font-medium text-red-500">¥4,200 (28%)</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">FOMO 焦虑分类</div>
+                        <div style="height: 180px; position: relative;">
+                            <canvas id="expense-pie-chart"></canvas>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <p class="text-xl font-bold text-red-500" id="anxiety-expense-ratio">28%</p>
+                            </div>
+                        </div>
+                        <div class="mt-3 space-y-2">
+                            <div class="flex justify-between text-xs">
+                                <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-green-500 mr-1"></span>刚性</span>
+                                <span class="text-gray-600">45%</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-amber-800 mr-1"></span>品质</span>
+                                <span class="text-gray-600">27%</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-red-500 mr-1"></span>焦虑</span>
+                                <span class="text-gray-600">28%</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-red-500 mt-2 text-center font-bold">本月为焦虑多花了 ¥4,200</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">焦虑指数</div>
+                        <div class="gauge-container">
+                            <canvas id="anxiety-gauge"></canvas>
+                            <div class="gauge-content">
+                                <div class="gauge-value" id="gauge-value">77</div>
+                                <div class="gauge-level" id="gauge-level">中度焦虑</div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-center text-gray-500 mt-2">新中产家庭平均：58 分</p>
+                        <button class="btn btn-primary btn-sm w-full mt-3" onclick="scrollToAlternatives()">
+                            <i class="fas fa-lightbulb mr-1"></i>查看优化方案
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card mb-6">
+                    <div class="card-title">焦虑触发源分析</div>
+                    <div id="anxiety-triggers" class="space-y-3"></div>
+                    <p class="text-xs text-gray-500 mt-4 text-center">您的焦虑主要来自家长群的同辈压力，建议适当屏蔽群消息，避免被过度营销</p>
+                </div>
+
+                <div class="card mb-6">
+                    <div class="card-title">
+                        <i class="fas fa-shield text-green-500"></i>
+                        阶段焦虑干预建议
+                    </div>
+                    <div id="anxiety-intervention" class="space-y-4"></div>
+                </div>
+
+                <div class="card mb-6">
+                    <div class="card-title">
+                        <i class="fas fa-lightbulb text-yellow-500"></i>
+                        AI 降温小贴士
+                    </div>
+                    <div id="ai-cooling-tips" class="p-4 bg-yellow-50 rounded-lg">
+                        <p class="text-sm text-gray-700">
+                            💡 今天的反焦虑小知识：
+                            <br>哈佛大学研究表明，对孩子未来影响最大的不是上了多少补习班，而是父母的情绪稳定和高质量的陪伴。每天 15 分钟的亲子共读，效果远超过任何昂贵的早教课。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card mb-6">
+                    <div class="card-title">
+                        <i class="fas fa-lightbulb text-yellow-500"></i>
+                        平替方案推荐
+                    </div>
+                    <div id="alternatives-list"></div>
+                </div>
+
+                <div class="card mb-6">
+                    <div class="card-title flex items-center justify-between">
+                        <span>添加支出</span>
+                        <button class="btn btn-primary btn-sm" onclick="addExpense()">
+                            <i class="fas fa-plus mr-1"></i>添加
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input type="text" id="new-expense-name" class="form-input" placeholder="支出项目">
+                        <input type="number" id="new-expense-amount" class="form-input" placeholder="金额（元）">
+                        <select id="new-expense-category" class="form-input">
+                            <option value="刚性成长支出">📚 刚性成长支出</option>
+                            <option value="品质生活支出">🏠 品质生活支出</option>
+                            <option value="焦虑驱动支出">🔴 焦虑驱动支出</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card mb-6">
+                    <div class="card-title">支出明细</div>
+                    <div id="expense-list"></div>
+                </div>
+            </section>
+        </div>
+
+        <div class="page" id="page-insurance">
+            <section>
+                <h2 class="text-2xl font-bold mb-6">保险测评</h2>
+
+                <!-- 我的保单快速录入 -->
+                <div class="card mb-6">
+                    <div class="card-title flex items-center justify-between">
+                        <span><i class="fas fa-clipboard-list text-blue-500 mr-2"></i>我已有的保险</span>
+                        <span class="text-xs text-gray-400">录入后自动更新保障评分</span>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3">
+                        <div class="flex items-center justify-between p-3 rounded-lg border cursor-pointer" id="policy-critical-row" onclick="togglePolicyType('critical')">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                                    <i class="fas fa-heartbeat text-red-500 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">重疾险</p>
+                                    <p class="text-xs text-gray-400">确诊重大疾病一次性赔付</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="policy-critical-amount" class="form-input text-xs w-24" placeholder="保额（万）" onclick="event.stopPropagation()" onchange="savePolicyTypes()">
+                                <div class="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0" id="policy-critical-check" style="border-color:#ccc;"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 rounded-lg border cursor-pointer" id="policy-medical-row" onclick="togglePolicyType('medical')">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-hospital text-blue-500 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">百万医疗险</p>
+                                    <p class="text-xs text-gray-400">住院医疗费用报销</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="policy-medical-amount" class="form-input text-xs w-24" placeholder="保额（万）" onclick="event.stopPropagation()" onchange="savePolicyTypes()">
+                                <div class="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0" id="policy-medical-check" style="border-color:#ccc;"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 rounded-lg border cursor-pointer" id="policy-accident-row" onclick="togglePolicyType('accident')">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                                    <i class="fas fa-shield-alt text-green-500 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">意外险</p>
+                                    <p class="text-xs text-gray-400">意外伤害医疗和伤残赔付</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="policy-accident-amount" class="form-input text-xs w-24" placeholder="保额（万）" onclick="event.stopPropagation()" onchange="savePolicyTypes()">
+                                <div class="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0" id="policy-accident-check" style="border-color:#ccc;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-3 text-center">以上信息仅保存在本地设备，不会上传</p>
+                </div>
+
+                <div class="card mb-6">
+                    <div class="card-title">
+                        <i class="fas fa-comments text-blue-500"></i>
+                        描述您的保险需求
+                    </div>
+                    <div class="mb-4">
+                        <textarea id="insurance-description" class="form-input" rows="4" placeholder="请描述您的家庭情况，例如：
+- 我家孩子3岁，想给他买重疾险
+- 我和爱人都有社保，想补充医疗险
+- 家庭月收入2万元，想知道每年花多少钱买保险合适
+- 之前买过某保险公司的XX产品，想知道性价比如何"></textarea>
+                    </div>
+                    <button class="btn btn-primary w-full" onclick="analyzeInsurance()">
+                        <i class="fas fa-search mr-2"></i>获取保险配置建议
+                    </button>
+                </div>
+
+                <div class="card mb-6" id="upload-section">
+                    <div class="upload-area" onclick="triggerUpload()">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <p class="text-gray-600 mb-2">点击上传保单照片或计划书</p>
+                        <p class="text-sm text-gray-400">AI将自动解析并给出客观分析</p>
+                        <input type="file" id="file-upload" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+
+                <div class="card mb-6" id="loading-section" style="display: none;">
+                    <div class="text-center py-8">
+                        <div class="loading-spinner mb-4"></div>
+                        <p class="text-gray-600">AI正在解析保单...</p>
+                        <p class="text-sm text-gray-400">大约需要3秒钟</p>
+                    </div>
+                </div>
+
+                <div id="result-section" style="display: none;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold">保险配置建议结果</h3>
+                        <button class="btn btn-outline btn-sm" onclick="resetInsurancePage()">
+                            <i class="fas fa-arrow-left mr-2"></i>返回
+                        </button>
+                    </div>
+                    <div class="card mb-6">
+                        <div class="card-title">保单解析结果</div>
+                        <h3 class="text-lg font-bold mb-4" id="policy-name">XX少儿重疾险（返还型）</h3>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500">年交保费</p>
+                                <p class="text-2xl font-bold text-gray-800" id="policy-premium">8,000 元</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500">保额</p>
+                                <p class="text-2xl font-bold text-gray-800" id="policy-coverage">500,000 元</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <h4 class="font-semibold mb-3 text-green-600">
+                                <i class="fas fa-check-circle mr-2"></i>亮点
+                            </h4>
+                            <ul class="list-disc list-inside space-y-2 text-gray-600" id="policy-positives"></ul>
+                        </div>
+
+                        <div>
+                            <h4 class="font-semibold mb-3 text-red-600">
+                                <i class="fas fa-times-circle mr-2"></i>注意事项
+                            </h4>
+                            <ul class="list-disc list-inside space-y-2 text-gray-600" id="policy-issues"></ul>
+                        </div>
+                    </div>
+
+                    <div class="card mb-6">
+                        <div class="card-title">同类产品对比</div>
+                        <div class="overflow-x-auto">
+                            <table class="comparison-table" id="comparison-table"></table>
+                        </div>
+                    </div>
+
+                    <div class="card mb-6">
+                        <div class="card-title">
+                            <i class="fas fa-ban text-orange-500"></i>
+                            常见陷阱提醒
+                        </div>
+                        <div id="common-traps-list" class="space-y-3"></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">
+                            <i class="fas fa-thumbs-up text-green-500"></i>
+                            优化建议
+                        </div>
+                        <div class="alert-banner success mb-4">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <strong>建议方案</strong>
+                                <p class="text-sm">每年 <span id="rec-premium">3,500</span> 元，相比当前方案每年节省 <span id="rec-savings">4,500</span> 元</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-4" id="rec-rationale"></p>
+                        <div id="recommendation-list"></div>
+                    </div>
+
+                    <div class="card mb-6">
+                        <div class="card-title">
+                            <i class="fas fa-chart-line text-purple-500"></i>
+                            收益与风险分析
+                        </div>
+                        <div id="insurance-analysis-content">
+                            <div class="p-4 bg-blue-50 rounded-lg mb-4">
+                                <h4 class="font-medium text-blue-700 mb-2">💰 保障收益分析</h4>
+                                <p class="text-sm text-blue-600 mb-2" id="insurance-return-analysis">以30万保额、年缴3500元为例，保障收益率约为8.57%（30万/3500元/10年），远高于银行存款利率。</p>
+                                <div class="mt-3 space-y-2">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">保障期限</span>
+                                        <span class="font-medium">终身</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">重疾保障</span>
+                                        <span class="font-medium">30万</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">轻症保障</span>
+                                        <span class="font-medium">9万</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">身故保障</span>
+                                        <span class="font-medium">30万</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-orange-50 rounded-lg mb-4">
+                                <h4 class="font-medium text-orange-700 mb-2">⚠️ 风险提示</h4>
+                                <ul class="text-sm text-orange-600 space-y-2" id="insurance-risk-warnings">
+                                    <li>• 重疾险属于长期险种，提前退保可能损失本金</li>
+                                    <li>• 部分产品有生存金返还责任，但收益率通常不高</li>
+                                    <li>• 购买前请仔细阅读条款，注意免赔额和除外责任</li>
+                                    <li>• 建议将保险支出控制在家庭收入的5%-10%以内</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-medium text-gray-700 mb-2">📊 计算方法说明</h4>
+                                <p class="text-sm text-gray-600">保障收益率 = 保额 / (年缴保费 × 缴费年限)</p>
+                                <p class="text-sm text-gray-600 mt-1">实际年化收益需考虑通胀率和保障成本，建议与定期存款、理财产品综合比较。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="page" id="page-game">
+            <section>
+                <h2 class="text-2xl font-bold mb-6">亲子大富翁</h2>
+
+                <div class="toggle-switch mb-6">
+                    <button class="toggle-btn active" id="parent-mode" onclick="switchGameMode('parent')">
+                        <i class="fas fa-user-tie mr-2"></i>家长端
+                    </button>
+                    <button class="toggle-btn" id="kid-mode" onclick="switchGameMode('kid')">
+                        <i class="fas fa-child mr-2"></i>孩子端
+                    </button>
+                </div>
+
+                <div id="parent-view">
+                    <div class="card mb-6 bg-gradient-to-r from-red-50 to-pink-50">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="kid-avatar text-4xl">👧</div>
+                            <div>
+                                <h3 class="font-bold text-lg" id="parent-child-name">小葵的小金库</h3>
+                                <p class="text-sm text-gray-500">财商成长中</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="text-center p-3 bg-white rounded-lg shadow-sm">
+                                <p class="text-2xl font-bold text-red-500" id="parent-balance">¥195.00</p>
+                                <p class="text-xs text-gray-500">小葵的小金库</p>
+                            </div>
+                            <div class="text-center p-3 bg-white rounded-lg shadow-sm">
+                                <p class="text-2xl font-bold text-yellow-500" id="parent-pending-tasks">3个</p>
+                                <p class="text-xs text-gray-500">待完成任务</p>
+                            </div>
+                            <div class="text-center p-3 bg-white rounded-lg shadow-sm">
+                                <p class="text-2xl font-bold text-purple-500" id="parent-medals">5枚</p>
+                                <p class="text-xs text-gray-500">已获勋章</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 mt-3">
+                            <div class="text-center p-3 bg-white rounded-lg shadow-sm">
+                                <p class="text-xl font-bold text-green-500" id="parent-earned">0 元</p>
+                                <p class="text-xs text-gray-500">累计收入</p>
+                            </div>
+                            <div class="text-center p-3 bg-white rounded-lg shadow-sm">
+                                <p class="text-xl font-bold text-blue-500" id="parent-saved">0 元</p>
+                                <p class="text-xs text-gray-500">累计储蓄</p>
+                            </div>
+                            <div class="text-center p-3 bg-white rounded-lg shadow-sm">
+                                <p class="text-xl font-bold text-pink-500" id="parent-savings-rate">0%</p>
+                                <p class="text-xs text-gray-500">储蓄率</p>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="progress-bar">
+                                <div class="progress-fill progress-green" id="parent-savings-progress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <!-- 教育金联动横幅 -->
+                        <div class="mt-3 p-3 rounded-lg" style="background: linear-gradient(135deg, #fff5f5, #fff0f0); border: 1px solid #fecaca;" id="edu-link-banner">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-graduation-cap text-sm" style="color: var(--cmb-red);"></i>
+                                <p class="text-xs" style="color: var(--cmb-red);" id="edu-link-text">小葵累计储蓄相当于 <strong id="edu-link-days">--</strong> 天的教育金</p>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1" id="edu-link-sub">每完成一个任务，就离教育目标更近一步</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="card">
+                            <div class="card-title flex justify-between items-center">
+                                <span><i class="fas fa-tasks text-blue-500 mr-2"></i>小葵的任务清单</span>
+                                <button class="btn btn-primary btn-sm" onclick="addTask()">
+                                    <i class="fas fa-plus mr-1"></i>添加任务
+                                </button>
+                            </div>
+                            <div id="parent-task-list" class="space-y-3"></div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title flex justify-between items-center">
+                                <span><i class="fas fa-coins text-yellow-500 mr-2"></i>零花钱发放记录</span>
+                                <button class="btn btn-outline btn-sm" onclick="manualAllowance()">
+                                    手动发放
+                                </button>
+                            </div>
+                            <div id="allowance-records" class="space-y-2 max-h-60 overflow-y-auto">
+                            </div>
+                            <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">自动发放设置</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="auto-allowance-switch" onchange="toggleAutoAllowance()">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="card">
+                            <div class="card-title flex justify-between items-center">
+                                <span><i class="fas fa-clock text-purple-500 mr-2"></i>攒钱挑战</span>
+                                <button class="btn btn-primary btn-sm" onclick="createChallenge()">
+                                    <i class="fas fa-plus mr-1"></i>创建挑战
+                                </button>
+                            </div>
+                            <div id="challenge-management" class="space-y-3">
+                                <div class="p-4 bg-purple-50 rounded-lg">
+                                    <div class="flex justify-between mb-2">
+                                        <span class="font-medium">攒钱买乐高</span>
+                                        <span class="text-sm text-purple-600">还剩10天</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill progress-purple" style="width: 65%;"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">已存 ¥195 / 目标 ¥300</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title flex justify-between items-center">
+                                <span><i class="fas fa-hourglass-half text-green-500 mr-2"></i>延迟满足挑战</span>
+                            </div>
+                            <div id="delay-challenge-list" class="space-y-3">
+                                <div class="p-4 bg-green-50 rounded-lg">
+                                    <div class="flex justify-between mb-2">
+                                        <span class="font-medium">推迟一周买零食</span>
+                                        <span class="text-sm text-green-600">已完成</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500">已节省 ¥15，获得奖励 ¥10</p>
+                                </div>
+                                <div class="p-4 bg-green-50 rounded-lg">
+                                    <div class="flex justify-between mb-2">
+                                        <span class="font-medium">坚持一个月不买玩具</span>
+                                        <span class="text-sm text-green-600">进行中</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill progress-green" style="width: 60%;"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">已节省 ¥50，还剩12天</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                        <div class="card">
+                            <div class="card-title">
+                                <i class="fas fa-chart-bar text-green-500 mr-2"></i>小葵的财商报告
+                            </div>
+                            <div class="p-4 bg-green-50 rounded-lg mb-4">
+                                <p class="text-sm text-green-700" id="ai-finance-report">
+                                    小葵本月储蓄率达到45%，表现非常优秀！可以引导他尝试设置一个更长时间的储蓄挑战，培养长期规划能力。
+                                </p>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-2">收入来源分布</p>
+                                    <div class="flex gap-2">
+                                        <div class="flex-1 bg-blue-100 rounded-full h-2" style="width: 60%;"></div>
+                                        <div class="flex-1 bg-green-100 rounded-full h-2" style="width: 30%;"></div>
+                                        <div class="flex-1 bg-purple-100 rounded-full h-2" style="width: 10%;"></div>
+                                    </div>
+                                    <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                        <span>任务奖励60%</span>
+                                        <span>零花钱30%</span>
+                                        <span>奖励10%</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-2">储蓄率变化</p>
+                                    <div class="flex items-end gap-1 h-12">
+                                        <div class="flex-1 bg-green-500 rounded-t" style="height: 30%;"></div>
+                                        <div class="flex-1 bg-green-500 rounded-t" style="height: 40%;"></div>
+                                        <div class="flex-1 bg-green-500 rounded-t" style="height: 45%;"></div>
+                                    </div>
+                                    <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                        <span>3月</span>
+                                        <span>4月</span>
+                                        <span>5月</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="kid-view" style="display: none;">
+                    <div class="text-center mb-6">
+                        <div class="inline-block p-6 bg-gradient-to-b from-yellow-100 to-yellow-50 rounded-3xl shadow-lg">
+                            <div class="text-6xl mb-2" id="piggy-animation">🐷</div>
+                            <div class="text-4xl font-bold text-red-500 mb-2" id="kid-balance-large">¥195.00</div>
+                            <p class="text-gray-500">小葵的小金库</p>
+                        </div>
+                    </div>
+
+                    <div class="card mb-6">
+                        <div class="card-title">
+                            <i class="fas fa-tasks text-blue-500 mr-2"></i>
+                            我可以做的任务
+                        </div>
+                        <div id="kid-task-square" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="task-square" data-task-id="4">
+                                <i class="fas fa-shirt text-blue-500"></i>
+                                <p>自己穿衣服</p>
+                                <span class="reward">+¥5</span>
+                            </div>
+                            <div class="task-square" data-task-id="5">
+                                <i class="fas fa-book text-green-500"></i>
+                                <p>读一本绘本</p>
+                                <span class="reward">+¥8</span>
+                            </div>
+                            <div class="task-square" data-task-id="6">
+                                <i class="fas fa-leaf text-green-500"></i>
+                                <p>帮妈妈浇花</p>
+                                <span class="reward">+¥5</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-6">
+                        <div class="card-title">
+                            <i class="fas fa-star text-yellow-500 mr-2"></i>
+                            我的心愿清单
+                        </div>
+                        <div id="wish-list" class="space-y-3">
+                            <div class="wish-item flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
+                                <div class="w-10 h-10 rounded-full bg-yellow-200 flex items-center justify-center">
+                                    <i class="fas fa-cubes text-yellow-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium">乐高城市系列</p>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs px-2 py-0.5 bg-yellow-200 text-yellow-700 rounded-full">优先</span>
+                                        <span class="text-sm text-gray-500">¥299</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="progress-bar w-24 h-2">
+                                        <div class="progress-fill progress-yellow" style="width: 65%;"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">已存65%</p>
+                                </div>
+                            </div>
+                            <div class="wish-item flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                                <div class="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center">
+                                    <i class="fas fa-flask text-blue-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium">科学实验套装</p>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs px-2 py-0.5 bg-blue-200 text-blue-700 rounded-full">中等</span>
+                                        <span class="text-sm text-gray-500">¥89</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="progress-bar w-24 h-2">
+                                        <div class="progress-fill progress-blue" style="width: 100%;"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">已存100%</p>
+                                </div>
+                            </div>
+                            <div class="wish-item flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                                <div class="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center">
+                                    <i class="fas fa-book-open text-green-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium">儿童绘本套装</p>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs px-2 py-0.5 bg-green-200 text-green-700 rounded-full">中等</span>
+                                        <span class="text-sm text-gray-500">¥68</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="progress-bar w-24 h-2">
+                                        <div class="progress-fill progress-green" style="width: 100%;"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">已存100%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline w-full mt-4" onclick="addWish()">
+                            <i class="fas fa-plus mr-2"></i>添加心愿
+                        </button>
+                    </div>
+
+                    <div class="card mb-6">
+                        <div class="card-title">
+                            <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+                            我的挑战与勋章
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-500 mb-2">正在进行中的挑战</p>
+                            <div class="p-4 bg-purple-50 rounded-lg">
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-medium">攒钱买乐高</span>
+                                    <span class="text-sm text-purple-600">还剩10天</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill progress-purple" style="width: 65%;"></div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">已存 ¥195 / 目标 ¥300</p>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-2">我的勋章</p>
+                            <div class="grid grid-cols-4 gap-3" id="kid-medals">
+                                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-2xl mb-1">🥇</div>
+                                    <p class="text-xs text-gray-500">第一桶金</p>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-2xl mb-1">💰</div>
+                                    <p class="text-xs text-gray-500">小储蓄家</p>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-2xl mb-1">⏳</div>
+                                    <p class="text-xs text-gray-500">延迟满足</p>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-2xl mb-1">📚</div>
+                                    <p class="text-xs text-gray-500">学习之星</p>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-2xl mb-1">🎯</div>
+                                    <p class="text-xs text-gray-500">坚持达人</p>
+                                </div>
+                                <div class="text-center p-3 bg-gray-100 rounded-lg opacity-50">
+                                    <div class="text-2xl mb-1">🏆</div>
+                                    <p class="text-xs text-gray-400">理财大师</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                </div>
+
+            </section>
+        </div>
+
+        <div class="page" id="page-chat">
+            <section>
+                <h2 class="text-2xl font-bold mb-4">AI顾问</h2>
+
+                <!-- API Key 配置（折叠） -->
+                <div class="card mb-4" id="api-key-card">
+                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleApiKeyPanel()">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full" id="api-status-dot" style="background:#ccc;"></div>
+                            <span class="text-sm font-medium text-gray-600" id="api-status-label">配置火山方舟 API Key 以启用真实 AI 对话</span>
+                        </div>
+                        <i class="fas fa-chevron-down text-gray-400 text-xs" id="api-chevron"></i>
+                    </div>
+                    <div id="api-key-panel" style="display:none;" class="mt-3 pt-3 border-t border-gray-100">
+                        <p class="text-xs text-gray-400 mb-2">Key 仅保存在本地浏览器，不会上传。前往 <span class="text-blue-500">console.volcengine.com/ark</span> 获取。</p>
+                        <div class="flex gap-2">
+                            <input type="password" id="api-key-input" class="form-input flex-1 text-sm" placeholder="ark-...">
+                            <button class="btn btn-sm" style="background:var(--cmb-red);color:white;border:none;white-space:nowrap;" onclick="saveApiKey()">保存</button>
+                            <button class="btn btn-sm btn-outline" onclick="clearApiKey()">清除</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages"></div>
+                    <div id="quick-questions"></div>
+                    <div class="chat-input-area">
+                        <input type="text" class="chat-input" id="chat-input" placeholder="输入你的问题或困扰...">
+                        <button class="btn btn-primary" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+    </main>
+
+    <nav class="bottom-nav">
+        <div class="nav-items">
+            <div class="nav-item active" data-page="home" onclick="navigateTo('home')">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </div>
+            <div class="nav-item" data-page="education" onclick="navigateTo('education')">
+                <i class="fas fa-graduation-cap"></i>
+                <span>教育金</span>
+            </div>
+            <div class="nav-item" data-page="expense" onclick="navigateTo('expense')">
+                <i class="fas fa-chart-pie"></i>
+                <span>支出</span>
+            </div>
+            <div class="nav-item" data-page="insurance" onclick="navigateTo('insurance')">
+                <i class="fas fa-shield-alt"></i>
+                <span>保险</span>
+            </div>
+            <div class="nav-item" data-page="game" onclick="navigateTo('game')">
+                <i class="fas fa-gamepad"></i>
+                <span>大富翁</span>
+            </div>
+            <div class="nav-item" data-page="chat" onclick="navigateTo('chat')">
+                <i class="fas fa-comments"></i>
+                <span>对话</span>
+            </div>
+        </div>
+    </nav>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            });
+        }
+    </script>
+</body>
+</html>
