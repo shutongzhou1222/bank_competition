@@ -254,6 +254,34 @@ function showCompleteButton() {
     document.getElementById('submit-btn').style.display = 'block';
 }
 
+function showApiKeyStep() {
+    document.getElementById('submit-btn').style.display = 'none';
+    document.getElementById('apikey-step').style.display = 'block';
+    document.getElementById('onboarding-apikey-input').focus();
+    document.getElementById('apikey-step').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function saveOnboardingApiKey() {
+    const key = document.getElementById('onboarding-apikey-input').value.trim();
+    if (key && !key.startsWith('ark-')) {
+        // 简单提示格式错误，不阻断流程
+        const input = document.getElementById('onboarding-apikey-input');
+        input.style.borderColor = '#E60012';
+        input.placeholder = 'Key 应以 ark- 开头，请重新输入';
+        input.value = '';
+        input.focus();
+        return;
+    }
+    if (key) {
+        localStorage.setItem('arkApiKey', key);
+    }
+    generateNavMap();
+}
+
+function skipOnboardingApiKey() {
+    generateNavMap();
+}
+
 function saveOnboardingData() {
     localStorage.setItem('onboardingData', JSON.stringify(onboardingData));
 }
