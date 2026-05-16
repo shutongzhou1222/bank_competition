@@ -431,11 +431,22 @@ function generatePersonalizedData() {
         expenseData.categories[0].amount = Math.round(expenseData.total * 0.45);
         expenseData.categories[1].amount = Math.round(expenseData.total * 0.27);
         expenseData.categories[2].amount = Math.round(expenseData.total * 0.28);
-        
+
+        // 按比例缩放明细，使 details 之和与 total 保持一致
+        const oldDetailsTotal = expenseData.details.reduce((s, d) => s + d.amount, 0);
+        if (oldDetailsTotal > 0) {
+            const scale = expenseData.total / oldDetailsTotal;
+            expenseData.details.forEach(d => { d.amount = Math.max(1, Math.round(d.amount * scale)); });
+        }
+
         // 更新百分比
         expenseData.categories.forEach(cat => {
             cat.percentage = expenseData.total > 0 ? Math.round((cat.amount / expenseData.total) * 100) : 0;
         });
+
+        // 同步预算实际值
+        expenseData.monthlyBudget.actual = expenseData.total;
+        expenseData.monthlyBudget.overBudget = Math.max(0, expenseData.total - expenseData.monthlyBudget.recommended);
         
         // 保存所有数据
         saveData('familyData', familyData);
@@ -1058,11 +1069,13 @@ function renderMonthlySummary() {
     const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
     document.getElementById('summary-date').textContent = `${currentViewYear}年${monthNames[currentViewMonth]}`;
     
-    // 模拟当月数据（实际应该从expenseData中获取）
-    const monthlyExpense = Math.round(15000 + Math.random() * 5000);
-    const monthlySavings = Math.round(5000 + Math.random() * 2000);
-    const prevMonthExpense = Math.round(14000 + Math.random() * 5000);
-    const prevMonthSavings = Math.round(4500 + Math.random() * 2000);
+    const familyDataForSummary = getData('familyData');
+    const monthlyIncomeSummary = (familyDataForSummary && familyDataForSummary.monthlyIncome) ? familyDataForSummary.monthlyIncome : 25000;
+    const monthlyExpense = expenseData.total || 0;
+    const monthlySavings = Math.max(0, monthlyIncomeSummary - monthlyExpense);
+    // 上月用固定基准（当月的95%），避免随机跳动
+    const prevMonthExpense = Math.round(monthlyExpense * 0.95);
+    const prevMonthSavings = Math.max(0, monthlyIncomeSummary - prevMonthExpense);
     
     // 计算环比变化
     const expenseChange = Math.round(((monthlyExpense - prevMonthExpense) / prevMonthExpense) * 100);
@@ -1784,12 +1797,18 @@ function addExpense() {
     
     expenseData.details.push(newExpense);
     expenseData.total += amount;
-    
+
     const categoryIndex = expenseData.categories.findIndex(c => c.name === category);
     if (categoryIndex !== -1) {
         expenseData.categories[categoryIndex].amount += amount;
-        expenseData.categories[categoryIndex].percentage = Math.round((expenseData.categories[categoryIndex].amount / expenseData.total) * 100);
     }
+    // 重新计算所有分类的百分比，保持一致
+    expenseData.categories.forEach(cat => {
+        cat.percentage = expenseData.total > 0 ? Math.round((cat.amount / expenseData.total) * 100) : 0;
+    });
+    // 同步预算实际值
+    expenseData.monthlyBudget.actual = expenseData.total;
+    expenseData.monthlyBudget.overBudget = Math.max(0, expenseData.total - expenseData.monthlyBudget.recommended);
     
     saveData('expenseData', expenseData);
     
@@ -2029,15 +2048,17 @@ function scrollToAlternatives() {
 function renderBudgetDisplay() {
     const expenseData = getData('expenseData');
     const budget = expenseData.monthlyBudget;
-    
+    const actualTotal = expenseData.total || 0;
+    const overBudget = Math.max(0, actualTotal - budget.recommended);
+
     document.getElementById('budget-recommended').textContent = formatNumber(budget.recommended);
-    document.getElementById('budget-actual').textContent = formatNumber(budget.actual);
-    document.getElementById('budget-over').textContent = formatNumber(budget.overBudget);
-    
-    const budgetUsage = Math.min((budget.actual / budget.recommended) * 100, 100);
+    document.getElementById('budget-actual').textContent = formatNumber(actualTotal);
+    document.getElementById('budget-over').textContent = formatNumber(overBudget);
+
+    const budgetUsage = budget.recommended > 0 ? Math.min((actualTotal / budget.recommended) * 100, 100) : 0;
     document.getElementById('budget-bar').style.width = `${budgetUsage}%`;
     document.getElementById('budget-bar').className = 'progress-fill';
-    
+
     if (budgetUsage <= 100) {
         document.getElementById('budget-bar').classList.add('progress-green');
     } else {
